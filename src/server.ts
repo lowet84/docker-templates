@@ -2,7 +2,6 @@
 import { generate } from './generator'
 import * as YAML from 'yaml'
 import * as fs from 'fs'
-import { SimpleService } from 'Service'
 
 const config = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'))
 

@@ -3,3 +3,4 @@ docker-compose.yaml
 dist
 .idea
 config.json
+docker-compose.yaml

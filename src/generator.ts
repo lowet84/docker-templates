@@ -1,5 +1,5 @@
 import { ComposeFile, ComposeService } from 'ComposeFile'
-import { SimpleService } from 'Service'
+import { PortService, SimpleService } from 'Service'
 
 const getLabels = (
   domain: string,
@@ -22,6 +22,11 @@ const getLabels = (
     )
     ret.push(`traefik.http.routers.${name}${service.name || ''}.entrypoints=${ssl ? 'websecure' : 'web'}`)
     ret.push(`traefik.http.routers.${name}${service.name || ''}.service=${name}${service.name || ''}`)
+    if(!service.insecure)
+    {
+      ret.push(`traefik.http.middlewares.${name}${service.name || ''}.forwardauth.address=${forwardAuth}`)
+      ret.push(`traefik.http.routers.${name}${service.name || ''}.middlewares=${name}${service.name || ''}@docker`)
+    }
     
     if(ssl)
       ret.push(`traefik.http.routers.${name}${service.name || ''}.tls.certresolver=default`)
@@ -87,10 +92,11 @@ const getSimpleService = (
   const services =
     typeof service.services == 'number'
       ? [{ name: '', port: service.services }]
-      : (<{ name?: string; port: number }[]>service.services).map(
+      : (<PortService[]>service.services).map(
       (s, index) => ({
         name: s.name || `${index == 0 ? '' : `${service.name}${index}`}`,
-        port: s.port
+        port: s.port,
+        insecure: s.insecure || false
       })
       )
   return {
