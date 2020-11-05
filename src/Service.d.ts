@@ -3,5 +3,6 @@ export type SimpleService = {
     services: { name?: string; port: number }[] | number
     configPath: string
     image?: string
-    mountData?: boolean
+    mountData?: boolean,
+    environment?: string[]
 }

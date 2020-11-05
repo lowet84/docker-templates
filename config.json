@@ -3,6 +3,7 @@
   "volumes": "/mnt/filer/AppData",
   "data": "/mnt/filer",
   "ssl": true,
+  "forwardAuth": "http://forward-auth:4181/",
   "apps": {
     "sonarr": {
       "image": "linuxserver/sonarr",
@@ -31,6 +32,12 @@
       "name": "rethinkdb",
       "configPath": "/data",
       "services": 8080
+    },
+    "keycloak": {
+      "name": "keycloak",
+      "configPath": "/opt/jboss/keycloak/standalone/data/",
+      "services": 8080,
+      "environment": ["PROXY_ADDRESS_FORWARDING=true"]
     }
   }
 }

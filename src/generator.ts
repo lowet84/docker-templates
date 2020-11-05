@@ -4,8 +4,9 @@ import { SimpleService } from 'Service'
 const getLabels = (
   domain: string,
   name: string,
-  services: { name?: string; port: number }[],
-  ssl: boolean
+  services: { name?: string; port: number, insecure?: boolean }[],
+  ssl: boolean,
+  forwardAuth: string
 ) => {
   const ret = ['traefik.enable=true']
   services.forEach((service) => {
@@ -30,14 +31,15 @@ const getLabels = (
 const getDefaultServices = (
   domain: string,
   volumesLocation: string,
-  ssl: boolean
+  ssl: boolean,
+  forwardAuth: string
 ): { traefik: ComposeService; portainer: ComposeService } => {
   const traefik: ComposeService = {
     container_name: 'traefik',
     image: 'traefik',
     restart: 'always',
     volumes: [sock, `${volumesLocation}/traefik:/data`],
-    labels: getLabels(domain, 'traefik', [{ port: 8080 }], ssl),
+    labels: getLabels(domain, 'traefik', [{ port: 8080 }], ssl, forwardAuth),
     ports: ['80:80', '443:443'],
     command: [
       '--providers.docker=true',
@@ -62,7 +64,7 @@ const getDefaultServices = (
     container_name: 'portainer',
     volumes: [`${volumesLocation}/portainer:/data`, sock],
     restart: 'always',
-    labels: getLabels(domain, 'portainer', [{ port: 9000 }], ssl)
+    labels: getLabels(domain, 'portainer', [{ port: 9000 }], ssl, forwardAuth)
   }
 
   return { traefik, portainer }
@@ -73,7 +75,8 @@ const getSimpleService = (
   volumesLocation: string,
   dataLocation: string,
   domain: string,
-  ssl: boolean
+  ssl: boolean,
+  forwardAuth: string
 ): ComposeService => {
   const volumes: string[] = []
   if (service.configPath)
@@ -93,7 +96,7 @@ const getSimpleService = (
     container_name: service.name,
     restart: 'always',
     volumes,
-    labels: getLabels(domain, service.name, services, ssl)
+    labels: getLabels(domain, service.name, services, ssl, forwardAuth)
   }
 }
 
@@ -104,12 +107,13 @@ export const generate = (
   volumesLocation: string,
   dataLocation: string,
   simpleServices: SimpleService[],
-  ssl: boolean
+  ssl: boolean,
+  forwardAuth: string
 ): ComposeFile => {
-  const { traefik, portainer } = getDefaultServices(domain, volumesLocation, ssl)
+  const { traefik, portainer } = getDefaultServices(domain, volumesLocation, ssl, forwardAuth)
   const services: { [index: string]: ComposeService } = {}
   const simpleServicesCompose = simpleServices.reduce((acc, cur) => {
-    acc[cur.name] = getSimpleService(cur, volumesLocation, dataLocation, domain, ssl)
+    acc[cur.name] = getSimpleService(cur, volumesLocation, dataLocation, domain, ssl, forwardAuth)
     return acc
   }, services)
 
