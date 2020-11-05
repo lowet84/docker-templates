@@ -45,9 +45,9 @@ const getDefaultServices = (
     traefik.command.push(...[
       '--entrypoints.web.address=:80',
       '--entrypoints.websecure.address=:443',
-      '--certificatesresolvers.myresolver.acme.email=fredrik.lowenhamn@gmail.com',
-      '--certificatesresolvers.myresolver.acme.storage=/data/acme.json',
-      '--certificatesresolvers.myresolver.acme.tlschallenge.entrypoint=web'
+      '--certificatesresolvers.default.acme.tlschallenge',
+      '--certificatesresolvers.default.acme.email=fredrik.lowenhamn@gmail.com',
+      '--certificatesresolvers.default.acme.storage=/data/acme.json'
     ])
   }
 
