@@ -33,7 +33,7 @@ const getDefaultServices = (
     restart: 'always',
     volumes: [sock, `${volumesLocation}/traefik:/data`],
     labels: getLabels(domain, 'traefik', [{ port: 8080 }]),
-    ports: ['80', '443'],
+    ports: ['80:80', '443:443'],
     command: [
       '--providers.docker=true',
       '--providers.docker.exposedByDefault=false',
