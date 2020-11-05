@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react",
+    "lib": ["dom", "esnext"],
+    "moduleResolution": "node",
+    "noEmit": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": true,
+    "baseUrl": "./src",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "declaration": true,
+    "paths": {
+      "store": ["src/store"],
+      "pages": ["src/pages"],
+      "components": ["src/components"],
+      "client": ["src/client"]
+    }
+  }
+}
