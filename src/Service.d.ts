@@ -4,7 +4,8 @@ export type SimpleService = {
     configPath: string
     image?: string
     mountData?: boolean,
-    environment?: string[]
+    environment?: string[],
+    command?: string[]
 }
 
 export type PortService = { name?: string; port: number, insecure?: boolean }

@@ -13,5 +13,6 @@ export type ComposeFile = {
     ports?: string[]
     command?: string[]
     restart?: 'always',
-    environment?: string[]
+    environment?: string[],
+    command?: string[]
   }

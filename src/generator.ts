@@ -105,7 +105,8 @@ const getSimpleService = (
     restart: 'always',
     volumes,
     labels: getLabels(domain, service.name, services, ssl, forwardAuth),
-    environment: service.environment || []
+    environment: service.environment || [],
+    command: service.command || []
   }
 }
 
