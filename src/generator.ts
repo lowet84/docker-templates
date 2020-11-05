@@ -44,7 +44,6 @@ const getDefaultServices = (
   if (ssl) {
     traefik.command.push(...[
       '--entrypoints.web.address=:80',
-      '--http.middlewares.httpsredirect.redirectScheme=https',
       '--entrypoints.websecure.address=:443',
       '--certificatesresolvers.myresolver.acme.email=fredrik.lowenhamn@gmail.com',
       '--certificatesresolvers.myresolver.acme.storage=/data/acme.json',
