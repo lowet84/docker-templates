@@ -4,7 +4,8 @@ import { SimpleService } from 'Service'
 const getLabels = (
   domain: string,
   name: string,
-  services: { name?: string; port: number }[]
+  services: { name?: string; port: number }[],
+  ssl: boolean
 ) => {
   const ret = ['traefik.enable=true']
   services.forEach((service) => {
@@ -18,7 +19,9 @@ const getLabels = (
         service.name || ''
       }.loadbalancer.server.port=${service.port}`
     )
+    ret.push(`traefik.http.routers.${name}${service.name || ''}.entrypoints=${ssl ? 'websecure' : 'web'}`)
   })
+
   return ret
 }
 
@@ -32,18 +35,20 @@ const getDefaultServices = (
     image: 'traefik',
     restart: 'always',
     volumes: [sock, `${volumesLocation}/traefik:/data`],
-    labels: getLabels(domain, 'traefik', [{ port: 8080 }]),
+    labels: getLabels(domain, 'traefik', [{ port: 8080 }], ssl),
     ports: ['80:80', '443:443'],
     command: [
       '--providers.docker=true',
       '--providers.docker.exposedByDefault=false',
       '--api.insecure=true',
-      '--log.level=DEBUG'
+      '--log.level=DEBUG',
+      '--entrypoints.web.address=:80'
     ]
   }
   if (ssl) {
     traefik.command.push(...[
-      '--entrypoints.web.address=:80',
+      '--entrypoints.web.http.redirections.entryPoint.to=websecure',
+      '--entrypoints.web.http.redirections.entryPoint.scheme=https',
       '--entrypoints.websecure.address=:443',
       '--certificatesresolvers.default.acme.httpchallenge=true',
       '--certificatesresolvers.default.acme.httpchallenge.entrypoint=web',
@@ -57,7 +62,7 @@ const getDefaultServices = (
     container_name: 'portainer',
     volumes: [`${volumesLocation}/portainer:/data`, sock],
     restart: 'always',
-    labels: getLabels(domain, 'portainer', [{ port: 9000 }])
+    labels: getLabels(domain, 'portainer', [{ port: 9000 }], ssl)
   }
 
   return { traefik, portainer }
@@ -67,7 +72,8 @@ const getSimpleService = (
   service: SimpleService,
   volumesLocation: string,
   dataLocation: string,
-  domain: string
+  domain: string,
+  ssl: boolean
 ): ComposeService => {
   const volumes: string[] = []
   if (service.configPath)
@@ -87,7 +93,7 @@ const getSimpleService = (
     container_name: service.name,
     restart: 'always',
     volumes,
-    labels: getLabels(domain, service.name, services)
+    labels: getLabels(domain, service.name, services, ssl)
   }
 }
 
@@ -103,7 +109,7 @@ export const generate = (
   const { traefik, portainer } = getDefaultServices(domain, volumesLocation, ssl)
   const services: { [index: string]: ComposeService } = {}
   const simpleServicesCompose = simpleServices.reduce((acc, cur) => {
-    acc[cur.name] = getSimpleService(cur, volumesLocation, dataLocation, domain)
+    acc[cur.name] = getSimpleService(cur, volumesLocation, dataLocation, domain, ssl)
     return acc
   }, services)
 
