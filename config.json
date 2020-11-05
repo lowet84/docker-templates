@@ -35,6 +35,7 @@
     },
     "keycloak": {
       "name": "keycloak",
+      "image": "jboss/keycloak",
       "configPath": "/opt/jboss/keycloak/standalone/data/",
       "services": 8080,
       "environment": ["PROXY_ADDRESS_FORWARDING=true"]
