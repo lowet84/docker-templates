@@ -1,7 +1,8 @@
 {
   "domain": "fredriklowenhamn.se",
-  "volumes": "C:\\temp\\volumes",
-  "data": "C:\\temp\\data",
+  "volumes": "/mnt/filer/AppData",
+  "data": "/mnt/filer",
+  "ssl": true,
   "apps": {
     "sonarr": {
       "image": "linuxserver/sonarr",
