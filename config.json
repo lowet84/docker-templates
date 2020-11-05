@@ -1,0 +1,35 @@
+{
+  "domain": "fredriklowenhamn.se",
+  "volumes": "C:\\temp\\volumes",
+  "data": "C:\\temp\\data",
+  "apps": {
+    "sonarr": {
+      "image": "linuxserver/sonarr",
+      "name": "sonarr",
+      "configPath": "/config",
+      "mountData": true,
+      "services": [
+        {
+          "name": "sonarr",
+          "port": 8989
+        }
+      ]
+    },
+    "radarr": {
+      "image": "linuxserver/radarr",
+      "name": "radarr",
+      "configPath": "/config",
+      "mountData": true,
+      "services": [
+        {
+          "port": 7878
+        }
+      ]
+    },
+    "rethinkdb": {
+      "name": "rethinkdb",
+      "configPath": "/data",
+      "services": 8080
+    }
+  }
+}
