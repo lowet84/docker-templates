@@ -47,8 +47,6 @@ const getDefaultServices = (
   }
   if (ssl) {
     traefik.command.push(...[
-      '--entrypoints.web.http.redirections.entryPoint.to=websecure',
-      '--entrypoints.web.http.redirections.entryPoint.scheme=https',
       '--entrypoints.websecure.address=:443',
       '--certificatesresolvers.default.acme.httpchallenge=true',
       '--certificatesresolvers.default.acme.httpchallenge.entrypoint=web',
