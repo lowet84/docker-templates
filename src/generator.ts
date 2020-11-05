@@ -96,7 +96,8 @@ const getSimpleService = (
     container_name: service.name,
     restart: 'always',
     volumes,
-    labels: getLabels(domain, service.name, services, ssl, forwardAuth)
+    labels: getLabels(domain, service.name, services, ssl, forwardAuth),
+    environment: service.environment
   }
 }
 
