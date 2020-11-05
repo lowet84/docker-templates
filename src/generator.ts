@@ -21,6 +21,8 @@ const getLabels = (
       }.loadbalancer.server.port=${service.port}`
     )
     ret.push(`traefik.http.routers.${name}${service.name || ''}.entrypoints=${ssl ? 'websecure' : 'web'}`)
+    ret.push(`traefik.http.routers.${name}${service.name || ''}.service=${name}${service.name || ''}`)
+    
     if(ssl)
       ret.push(`traefik.http.routers.${name}${service.name || ''}.tls.certresolver=default`)
   })

@@ -2,3 +2,4 @@ node_modules/
 docker-compose.yaml
 dist
 .idea
+config.json
