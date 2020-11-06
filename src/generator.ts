@@ -22,7 +22,7 @@ const getLabels = (
     )
     ret.push(`traefik.http.routers.${name}${service.name || ''}.entrypoints=${ssl ? 'websecure' : 'web'}`)
     ret.push(`traefik.http.routers.${name}${service.name || ''}.service=${name}${service.name || ''}`)
-    if(!service.insecure)
+    if(!!forwardAuth && !service.insecure)
     {
       ret.push(`traefik.http.middlewares.${name}${service.name || ''}.forwardauth.address=${forwardAuth}`)
       ret.push(`traefik.http.routers.${name}${service.name || ''}.middlewares=${name}${service.name || ''}@docker`)
@@ -43,7 +43,7 @@ const getDefaultServices = (
 ): { traefik: ComposeService; portainer: ComposeService } => {
   const traefik: ComposeService = {
     container_name: 'traefik',
-    image: 'traefik:v2.3.2',
+    image: 'traefik',
     restart: 'always',
     volumes: [sock, `${volumesLocation}/traefik:/data`],
     labels: getLabels(domain, 'traefik', [{ port: 8080 }], ssl, forwardAuth),
@@ -68,7 +68,7 @@ const getDefaultServices = (
   }
 
   const portainer: ComposeService = {
-    image: 'portainer/portainer-ce:2.0.0-alpine',
+    image: 'portainer/portainer-ce:alpine',
     container_name: 'portainer',
     volumes: [`${volumesLocation}/portainer:/data`, sock],
     restart: 'always',
