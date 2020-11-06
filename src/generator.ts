@@ -43,7 +43,7 @@ const getDefaultServices = (
 ): { traefik: ComposeService; portainer: ComposeService } => {
   const traefik: ComposeService = {
     container_name: 'traefik',
-    image: 'traefik',
+    image: 'traefik:v2.3.2',
     restart: 'always',
     volumes: [sock, `${volumesLocation}/traefik:/data`],
     labels: getLabels(domain, 'traefik', [{ port: 8080 }], ssl, forwardAuth),
@@ -59,15 +59,16 @@ const getDefaultServices = (
   if (ssl) {
     traefik.command.push(...[
       '--entrypoints.websecure.address=:443',
+      '--entrypoints.web.http.redirections.entryPoint.to=websecure',
       '--certificatesresolvers.default.acme.httpchallenge=true',
       '--certificatesresolvers.default.acme.httpchallenge.entrypoint=web',
       '--certificatesresolvers.default.acme.email=fredrik.lowenhamn@gmail.com',
-      '--certificatesresolvers.default.acme.storage=/data/acme.json'
+      '--certificatesresolvers.default.acme.storage=/data/acme.json',
     ])
   }
 
   const portainer: ComposeService = {
-    image: 'portainer/portainer-ce',
+    image: 'portainer/portainer-ce:2.0.0-alpine',
     container_name: 'portainer',
     volumes: [`${volumesLocation}/portainer:/data`, sock],
     restart: 'always',
