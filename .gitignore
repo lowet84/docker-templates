@@ -2,5 +2,5 @@ node_modules/
 docker-compose.yaml
 dist
 .idea
-config.json
+secrets.json
 docker-compose.yaml

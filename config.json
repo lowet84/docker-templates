@@ -1,0 +1,101 @@
+{
+  "domain": "fredriklowenhamn.se",
+  "volumes": "/mnt/filer/AppData",
+  "data": "/mnt/filer",
+  "ssl": true,
+  "forwardAuth": "http://forward-auth:4181/",
+  "apps": {
+    "sonarr": {
+      "image": "linuxserver/sonarr",
+      "name": "sonarr",
+      "configPath": "/config",
+      "dataPath": "/data",
+      "mountData": true,
+      "services": [
+        {
+          "name": "sonarr",
+          "port": 8989
+        }
+      ]
+    },
+    "radarr": {
+      "image": "linuxserver/radarr",
+      "name": "radarr",
+      "configPath": "/config",
+      "dataPath": "/data",
+      "mountData": true,
+      "services": [
+        {
+          "port": 7878
+        }
+      ]
+    },
+    "rethinkdb": {
+      "name": "rethinkdb",
+      "configPath": "/data",
+      "services": 8080
+    },
+    "keycloak": {
+      "name": "keycloak",
+      "image": "jboss/keycloak",
+      "configPath": "/opt/jboss/keycloak/standalone/data/",
+      "services": [{ "port": 8080, "insecure": true }],
+      "environment": ["PROXY_ADDRESS_FORWARDING=true"]
+    },
+    "nexus": {
+      "name": "nexus",
+      "image": "sonatype/nexus3",
+      "configPath": "/nexus-data",
+      "services": [
+        {
+          "name": "nexus",
+          "port": 8081
+        },
+        {
+          "name": "docker",
+          "port": 9000,
+          "insecure": true
+        }
+      ]
+    },
+    "forward-auth": {
+      "name": "forward-auth",
+      "image": "docker.fredriklowenhamn.se/traefik-forward-auth",
+      "services": 4181,
+      "environment": [
+        "CLIENT_ID=traefik",
+        "CLIENT_SECRET=#AUTH_CLIENT_SECRET#",
+        "PROVIDER_URI=https://keycloak.fredriklowenhamn.se/auth/realms/master",
+        "SECRET=#AUTH_SECRET#",
+        "WHITELIST=fredrik.lowenhamn@gmail.com"
+      ]
+    },
+    "wol": {
+      "name": "wol",
+      "image": "dabondi/go-rest-wol",
+      "services": 8080,
+      "configPath": "/app/config",
+      "environment": [
+        "WOLFILE=./config/computer.csv"
+      ]
+    },
+    "youtransfer": {
+      "name": "youtransfer",
+      "image": "remie/youtransfer",
+      "services": 5000,
+      "configPath": "/opt/youtransfer/config"
+    },
+    "webdav":{
+      "name": "webdav",
+      "image": "bytemark/webdav",
+      "services": 80,
+      "mountData": true,
+      "dataPath": "/var/lib/dav",
+      "environment": [
+        "AUTH_TYPE=Basic",
+        "USERNAME=#USERNAME#",
+        "PASSWORD=#PASSWORD#"
+      ]
+    }
+  }
+}

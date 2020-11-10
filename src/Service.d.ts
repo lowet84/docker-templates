@@ -4,6 +4,7 @@ export type SimpleService = {
     configPath: string
     image?: string
     mountData?: boolean,
+    dataPath?: string,
     environment?: string[],
     command?: string[]
 }

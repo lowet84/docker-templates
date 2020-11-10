@@ -4,7 +4,7 @@ import { PortService, SimpleService } from 'Service'
 const getLabels = (
   domain: string,
   name: string,
-  services: { name?: string; port: number, insecure?: boolean }[],
+  services: { name?: string; port: number; insecure?: boolean }[],
   ssl: boolean,
   forwardAuth: string
 ) => {
@@ -20,16 +20,35 @@ const getLabels = (
         service.name || ''
       }.loadbalancer.server.port=${service.port}`
     )
-    ret.push(`traefik.http.routers.${name}${service.name || ''}.entrypoints=${ssl ? 'websecure' : 'web'}`)
-    ret.push(`traefik.http.routers.${name}${service.name || ''}.service=${name}${service.name || ''}`)
-    if(!!forwardAuth && !service.insecure)
-    {
-      ret.push(`traefik.http.middlewares.${name}${service.name || ''}.forwardauth.address=${forwardAuth}`)
-      ret.push(`traefik.http.routers.${name}${service.name || ''}.middlewares=${name}${service.name || ''}@docker`)
+    ret.push(
+      `traefik.http.routers.${name}${service.name || ''}.entrypoints=${
+        ssl ? 'websecure' : 'web'
+      }`
+    )
+    ret.push(
+      `traefik.http.routers.${name}${service.name || ''}.service=${name}${
+        service.name || ''
+      }`
+    )
+    if (!!forwardAuth && !service.insecure) {
+      ret.push(
+        `traefik.http.middlewares.${name}${
+          service.name || ''
+        }.forwardauth.address=${forwardAuth}`
+      )
+      ret.push(
+        `traefik.http.routers.${name}${service.name || ''}.middlewares=${name}${
+          service.name || ''
+        }@docker`
+      )
     }
-    
-    if(ssl)
-      ret.push(`traefik.http.routers.${name}${service.name || ''}.tls.certresolver=default`)
+
+    if (ssl)
+      ret.push(
+        `traefik.http.routers.${name}${
+          service.name || ''
+        }.tls.certresolver=default`
+      )
   })
 
   return ret
@@ -53,18 +72,20 @@ const getDefaultServices = (
       '--providers.docker.exposedByDefault=false',
       '--api.insecure=true',
       '--log.level=DEBUG',
-      '--entrypoints.web.address=:80'
-    ]
+      '--entrypoints.web.address=:80',
+    ],
   }
   if (ssl) {
-    traefik.command.push(...[
-      '--entrypoints.websecure.address=:443',
-      '--entrypoints.web.http.redirections.entryPoint.to=websecure',
-      '--certificatesresolvers.default.acme.httpchallenge=true',
-      '--certificatesresolvers.default.acme.httpchallenge.entrypoint=web',
-      '--certificatesresolvers.default.acme.email=fredrik.lowenhamn@gmail.com',
-      '--certificatesresolvers.default.acme.storage=/data/acme.json',
-    ])
+    traefik.command.push(
+      ...[
+        '--entrypoints.websecure.address=:443',
+        '--entrypoints.web.http.redirections.entryPoint.to=websecure',
+        '--certificatesresolvers.default.acme.httpchallenge=true',
+        '--certificatesresolvers.default.acme.httpchallenge.entrypoint=web',
+        '--certificatesresolvers.default.acme.email=fredrik.lowenhamn@gmail.com',
+        '--certificatesresolvers.default.acme.storage=/data/acme.json',
+      ]
+    )
   }
 
   const portainer: ComposeService = {
@@ -72,7 +93,7 @@ const getDefaultServices = (
     container_name: 'portainer',
     volumes: [`${volumesLocation}/portainer:/data`, sock],
     restart: 'always',
-    labels: getLabels(domain, 'portainer', [{ port: 9000 }], ssl, forwardAuth)
+    labels: getLabels(domain, 'portainer', [{ port: 9000 }], ssl, forwardAuth),
   }
 
   return { traefik, portainer }
@@ -89,17 +110,16 @@ const getSimpleService = (
   const volumes: string[] = []
   if (service.configPath)
     volumes.push(`${volumesLocation}/${service.name}:${service.configPath}`)
-  if (service.mountData) volumes.push(`${dataLocation}:/mnt`)
+  if (service.mountData)
+    volumes.push(`${dataLocation}:${service.dataPath || '/mnt'}`)
   const services =
     typeof service.services == 'number'
       ? [{ name: '', port: service.services }]
-      : (<PortService[]>service.services).map(
-      (s, index) => ({
-        name: s.name || `${index == 0 ? '' : `${service.name}${index}`}`,
-        port: s.port,
-        insecure: s.insecure || false
-      })
-      )
+      : (<PortService[]>service.services).map((s, index) => ({
+          name: s.name || `${index == 0 ? '' : `${service.name}${index}`}`,
+          port: s.port,
+          insecure: s.insecure || false,
+        }))
   return {
     image: service.image || service.name,
     container_name: service.name,
@@ -107,7 +127,7 @@ const getSimpleService = (
     volumes,
     labels: getLabels(domain, service.name, services, ssl, forwardAuth),
     environment: service.environment || [],
-    command: service.command || []
+    command: service.command || [],
   }
 }
 
@@ -121,10 +141,22 @@ export const generate = (
   ssl: boolean,
   forwardAuth: string
 ): ComposeFile => {
-  const { traefik, portainer } = getDefaultServices(domain, volumesLocation, ssl, forwardAuth)
+  const { traefik, portainer } = getDefaultServices(
+    domain,
+    volumesLocation,
+    ssl,
+    forwardAuth
+  )
   const services: { [index: string]: ComposeService } = {}
   const simpleServicesCompose = simpleServices.reduce((acc, cur) => {
-    acc[cur.name] = getSimpleService(cur, volumesLocation, dataLocation, domain, ssl, forwardAuth)
+    acc[cur.name] = getSimpleService(
+      cur,
+      volumesLocation,
+      dataLocation,
+      domain,
+      ssl,
+      forwardAuth
+    )
     return acc
   }, services)
 
@@ -133,7 +165,7 @@ export const generate = (
     services: {
       traefik,
       portainer,
-      ...simpleServicesCompose
-    }
+      ...simpleServicesCompose,
+    },
   }
 }
