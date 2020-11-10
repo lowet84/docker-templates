@@ -75,27 +75,13 @@
       "image": "dabondi/go-rest-wol",
       "services": 8080,
       "configPath": "/app/config",
-      "environment": [
-        "WOLFILE=./config/computer.csv"
-      ]
+      "environment": ["WOLFILE=./config/computer.csv"]
     },
     "youtransfer": {
       "name": "youtransfer",
       "image": "remie/youtransfer",
       "services": 5000,
       "configPath": "/opt/youtransfer/config"
-    },
-    "webdav":{
-      "name": "webdav",
-      "image": "bytemark/webdav",
-      "services": 80,
-      "mountData": true,
-      "dataPath": "/var/lib/dav",
-      "environment": [
-        "AUTH_TYPE=Basic",
-        "USERNAME=#USERNAME#",
-        "PASSWORD=#PASSWORD#"
-      ]
     }
   }
 }
