@@ -2,6 +2,7 @@ import { ComposeFile, ComposeService } from 'ComposeFile'
 import { getDefaultServices } from './default/default'
 import { getLabels } from './lables'
 import { PortService, SimpleService } from 'Service'
+import { env } from 'process'
 
 const getSimpleService = (
   service: SimpleService,
@@ -12,18 +13,21 @@ const getSimpleService = (
   forwardAuth: string
 ): ComposeService => {
   const volumes: string[] = []
-  if (service.configPath){
-    if(typeof service.configPath == "string"){
+  if (service.configPath) {
+    if (typeof service.configPath == 'string') {
       volumes.push(`${volumesLocation}/${service.name}:${service.configPath}`)
-    }
-    else{
+    } else {
       const keys = Object.keys(service.configPath)
-      keys.forEach(key=>{
-        volumes.push(`${volumesLocation}/${service.name}/${key}:${(<any>service.configPath)[key]}`)
+      keys.forEach((key) => {
+        volumes.push(
+          `${volumesLocation}/${service.name}/${key}:${
+            (<any>service.configPath)[key]
+          }`
+        )
       })
     }
   }
-    
+
   if (service.dataPath)
     volumes.push(`${dataLocation}:${service.dataPath || '/mnt'}`)
   const services =
@@ -42,11 +46,11 @@ const getSimpleService = (
     labels: getLabels(domain, service.name, services, ssl, forwardAuth),
     environment: service.environment || [],
     command: service.command || [],
-    network_mode: service.vpn ? "service:wireguard" : undefined
+    network_mode: service.vpn ? 'service:wireguard' : undefined,
   }
-  if(!service.environment) delete ret.environment
-  if(!service.command) delete ret.command
-  if(!service.vpn) delete ret.network_mode
+  if (service.image?.includes("ghcr.io/linuxserver"))
+    ret.environment.push(...['PUID=1000', 'PGID=1000', 'TZ=Europe/Stockholm'])
+  if (!service.vpn) delete ret.network_mode
 
   return ret
 }
