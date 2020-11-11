@@ -108,9 +108,19 @@ const getSimpleService = (
   forwardAuth: string
 ): ComposeService => {
   const volumes: string[] = []
-  if (service.configPath)
-    volumes.push(`${volumesLocation}/${service.name}:${service.configPath}`)
-  if (service.mountData)
+  if (service.configPath){
+    if(typeof service.configPath == "string"){
+      volumes.push(`${volumesLocation}/${service.name}:${service.configPath}`)
+    }
+    else{
+      const keys = Object.keys(service.configPath)
+      keys.forEach(key=>{
+        volumes.push(`${volumesLocation}/${service.name}/${key}:${(<any>service.configPath)[key]}`)
+      })
+    }
+  }
+    
+  if (service.dataPath)
     volumes.push(`${dataLocation}:${service.dataPath || '/mnt'}`)
   const services =
     typeof service.services == 'number'

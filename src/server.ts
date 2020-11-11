@@ -3,15 +3,46 @@ import { generate } from './generator'
 import * as YAML from 'yaml'
 import * as fs from 'fs'
 
-let configString = fs.readFileSync("config.json", 'utf8')
-const secrets = fs.existsSync("secrets.json") ? JSON.parse(fs.readFileSync("secrets.json",'utf8')) : undefined
-if(secrets)
-  Object.keys(secrets).forEach(secretKey=>{
-    configString = configString.replace(new RegExp(`#${secretKey}#`, "g"), secrets[secretKey])
+let configString = fs.readFileSync('config.json', 'utf8')
+const secrets = fs.existsSync('secrets.json')
+  ? JSON.parse(fs.readFileSync('secrets.json', 'utf8'))
+  : undefined
+if (secrets)
+  Object.keys(secrets).forEach((secretKey) => {
+    configString = configString.replace(
+      new RegExp(`#${secretKey}#`, 'g'),
+      secrets[secretKey]
+    )
   })
 const config = JSON.parse(configString)
 
-const compose = generate(config.domain, config.volumes, config.data,
-  Object.values(config.apps), config.ssl, config.forwardAuth
+let compose = generate(
+  config.domain,
+  config.volumes,
+  config.data,
+  Object.values(config.apps),
+  config.ssl,
+  config.forwardAuth
 )
+
+let specialString = fs.existsSync('special.yaml')
+  ? fs.readFileSync('special.yaml', 'utf8')
+  : undefined
+if (secrets && specialString){
+  Object.keys(secrets).forEach((secretKey) => {
+    specialString = specialString.replace(
+      new RegExp(`#${secretKey}#`, 'g'),
+      secrets[secretKey]
+    )
+  })
+  specialString = specialString.replace(
+    new RegExp('#CONFIG_PATH#', 'g'),
+    config.volumes
+  )
+}
+// console.log(specialString)
+if (specialString) {
+  const special = YAML.parse(specialString)
+  compose.services = { ...compose.services, ...special.services }
+}
 fs.writeFileSync('docker-compose.yaml', YAML.stringify(compose), 'utf8')

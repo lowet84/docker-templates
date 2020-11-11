@@ -10,25 +10,15 @@
       "name": "sonarr",
       "configPath": "/config",
       "dataPath": "/data",
-      "mountData": true,
-      "services": [
-        {
-          "name": "sonarr",
-          "port": 8989
-        }
-      ]
+      "services": 8989,
+      "environment": ["PUID=1000", "PGID=1000", "TZ=Europe/Stockholm"]
     },
     "radarr": {
       "image": "linuxserver/radarr",
       "name": "radarr",
       "configPath": "/config",
       "dataPath": "/data",
-      "mountData": true,
-      "services": [
-        {
-          "port": 7878
-        }
-      ]
+      "services": 7878
     },
     "rethinkdb": {
       "name": "rethinkdb",
@@ -81,7 +71,10 @@
       "name": "youtransfer",
       "image": "remie/youtransfer",
       "services": 5000,
-      "configPath": "/opt/youtransfer/config"
+      "configPath": {
+        "config": "/opt/youtransfer/config",
+        "uploads": "/opt/youtransfer/uploads"
+      }
     }
   }
 }
