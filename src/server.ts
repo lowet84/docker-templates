@@ -22,7 +22,8 @@ let compose = generate(
   config.data,
   Object.values(config.apps),
   config.ssl,
-  config.forwardAuth
+  config.forwardAuth,
+  config.vpn
 )
 
 let specialString = fs.existsSync('special.yaml')

@@ -1,103 +1,7 @@
 import { ComposeFile, ComposeService } from 'ComposeFile'
+import { getDefaultServices } from './default/default'
+import { getLabels } from './lables'
 import { PortService, SimpleService } from 'Service'
-
-const getLabels = (
-  domain: string,
-  name: string,
-  services: { name?: string; port: number; insecure?: boolean }[],
-  ssl: boolean,
-  forwardAuth: string
-) => {
-  const ret = ['traefik.enable=true']
-  services.forEach((service) => {
-    ret.push(
-      `traefik.http.routers.${name}${service.name || ''}.rule=Host(\`${
-        service.name || name
-      }.${domain}\`)`
-    )
-    ret.push(
-      `traefik.http.services.${name}${
-        service.name || ''
-      }.loadbalancer.server.port=${service.port}`
-    )
-    ret.push(
-      `traefik.http.routers.${name}${service.name || ''}.entrypoints=${
-        ssl ? 'websecure' : 'web'
-      }`
-    )
-    ret.push(
-      `traefik.http.routers.${name}${service.name || ''}.service=${name}${
-        service.name || ''
-      }`
-    )
-    if (!!forwardAuth && !service.insecure) {
-      ret.push(
-        `traefik.http.middlewares.${name}${
-          service.name || ''
-        }.forwardauth.address=${forwardAuth}`
-      )
-      ret.push(
-        `traefik.http.routers.${name}${service.name || ''}.middlewares=${name}${
-          service.name || ''
-        }@docker`
-      )
-    }
-
-    if (ssl)
-      ret.push(
-        `traefik.http.routers.${name}${
-          service.name || ''
-        }.tls.certresolver=default`
-      )
-  })
-
-  return ret
-}
-
-const getDefaultServices = (
-  domain: string,
-  volumesLocation: string,
-  ssl: boolean,
-  forwardAuth: string
-): { traefik: ComposeService; portainer: ComposeService } => {
-  const traefik: ComposeService = {
-    container_name: 'traefik',
-    image: 'traefik',
-    restart: 'always',
-    volumes: [sock, `${volumesLocation}/traefik:/data`],
-    labels: getLabels(domain, 'traefik', [{ port: 8080 }], ssl, forwardAuth),
-    ports: ['80:80', '443:443'],
-    command: [
-      '--providers.docker=true',
-      '--providers.docker.exposedByDefault=false',
-      '--api.insecure=true',
-      '--log.level=DEBUG',
-      '--entrypoints.web.address=:80',
-    ],
-  }
-  if (ssl) {
-    traefik.command.push(
-      ...[
-        '--entrypoints.websecure.address=:443',
-        '--entrypoints.web.http.redirections.entryPoint.to=websecure',
-        '--certificatesresolvers.default.acme.httpchallenge=true',
-        '--certificatesresolvers.default.acme.httpchallenge.entrypoint=web',
-        '--certificatesresolvers.default.acme.email=fredrik.lowenhamn@gmail.com',
-        '--certificatesresolvers.default.acme.storage=/data/acme.json',
-      ]
-    )
-  }
-
-  const portainer: ComposeService = {
-    image: 'portainer/portainer-ce:alpine',
-    container_name: 'portainer',
-    volumes: [`${volumesLocation}/portainer:/data`, sock],
-    restart: 'always',
-    labels: getLabels(domain, 'portainer', [{ port: 9000 }], ssl, forwardAuth),
-  }
-
-  return { traefik, portainer }
-}
 
 const getSimpleService = (
   service: SimpleService,
@@ -130,7 +34,7 @@ const getSimpleService = (
           port: s.port,
           insecure: s.insecure || false,
         }))
-  return {
+  let ret = {
     image: service.image || service.name,
     container_name: service.name,
     restart: 'always',
@@ -138,10 +42,14 @@ const getSimpleService = (
     labels: getLabels(domain, service.name, services, ssl, forwardAuth),
     environment: service.environment || [],
     command: service.command || [],
+    network_mode: service.vpn ? "service:wireguard" : undefined
   }
-}
+  if(!service.environment) delete ret.environment
+  if(!service.command) delete ret.command
+  if(!service.vpn) delete ret.network_mode
 
-const sock = '/var/run/docker.sock:/var/run/docker.sock'
+  return ret
+}
 
 export const generate = (
   domain: string,
@@ -149,13 +57,15 @@ export const generate = (
   dataLocation: string,
   simpleServices: SimpleService[],
   ssl: boolean,
-  forwardAuth: string
+  forwardAuth: string,
+  vpn: boolean
 ): ComposeFile => {
-  const { traefik, portainer } = getDefaultServices(
+  const defaultServices = getDefaultServices(
     domain,
     volumesLocation,
     ssl,
-    forwardAuth
+    forwardAuth,
+    vpn
   )
   const services: { [index: string]: ComposeService } = {}
   const simpleServicesCompose = simpleServices.reduce((acc, cur) => {
@@ -173,8 +83,7 @@ export const generate = (
   return {
     version: '3',
     services: {
-      traefik,
-      portainer,
+      ...defaultServices,
       ...simpleServicesCompose,
     },
   }

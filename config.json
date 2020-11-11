@@ -4,6 +4,7 @@
   "data": "/mnt/filer",
   "ssl": true,
   "forwardAuth": "http://forward-auth:4181/",
+  "vpn": true,
   "apps": {
     "sonarr": {
       "image": "linuxserver/sonarr",
@@ -75,6 +76,26 @@
         "config": "/opt/youtransfer/config",
         "uploads": "/opt/youtransfer/uploads"
       }
+    },
+    "transmission": {
+      "name": "transmission",
+      "image": "ghcr.io/linuxserver/transmission",
+      "services": [
+        {
+          "port": 9091,
+          "insecure": true
+        }
+      ],
+      "configPath": "/config",
+      "dataPath": "/data",
+      "vpn": true,
+      "environment": [
+        "PUID=1000",
+        "PGID=1000",
+        "TZ=Europe/Stockholm",
+        "USER=#USERNAME#",
+        "PASS=#PASSWORD#"
+      ]
     }
   }
 }

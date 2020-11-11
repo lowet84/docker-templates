@@ -12,7 +12,10 @@ export type ComposeFile = {
     volumes?: string[]
     ports?: string[]
     command?: string[]
-    restart?: 'always',
+    restart?: string,
     environment?: string[],
-    command?: string[]
+    command?: string[],
+    cap_add?: string[],
+    sysctls?: string[],
+    network_mode?: string
   }
