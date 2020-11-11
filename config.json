@@ -53,11 +53,11 @@
       "image": "docker.fredriklowenhamn.se/traefik-forward-auth",
       "services": 4181,
       "environment": [
-        "CLIENT_ID=traefik",
+        "CLIENT_ID=#AUTH_CLIENT_ID#",
         "CLIENT_SECRET=#AUTH_CLIENT_SECRET#",
-        "PROVIDER_URI=https://keycloak.fredriklowenhamn.se/auth/realms/master",
+        "PROVIDER_URI=#AUTH_PROVIDER_URI#",
         "SECRET=#AUTH_SECRET#",
-        "WHITELIST=fredrik.lowenhamn@gmail.com"
+        "WHITELIST=#EMAIL#"
       ]
     },
     "wol": {
