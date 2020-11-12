@@ -2,7 +2,6 @@ import { ComposeFile, ComposeService } from 'ComposeFile'
 import { getDefaultServices } from './default/default'
 import { getLabels } from './lables'
 import { PortService, SimpleService } from 'Service'
-import { env } from 'process'
 
 const getSimpleService = (
   service: SimpleService,
@@ -31,6 +30,7 @@ const getSimpleService = (
   if (service.dataPath)
     volumes.push(`${dataLocation}:${service.dataPath || '/mnt'}`)
   const services =
+    !service.services ? [] :
     typeof service.services == 'number'
       ? [{ name: '', port: service.services }]
       : (<PortService[]>service.services).map((s, index) => ({
@@ -38,7 +38,7 @@ const getSimpleService = (
           port: s.port,
           insecure: s.insecure || false,
         }))
-  let ret = {
+  let ret: ComposeService = {
     image: service.image || service.name,
     container_name: service.name,
     restart: 'always',
@@ -48,6 +48,7 @@ const getSimpleService = (
     command: service.command || [],
     network_mode: service.vpn ? 'service:wireguard' : undefined,
   }
+  if(service.ports) ret.ports = service.ports
   if (service.image?.includes("ghcr.io/linuxserver"))
     ret.environment.push(...['PUID=1000', 'PGID=1000', 'TZ=Europe/Stockholm'])
   if (!service.vpn) delete ret.network_mode

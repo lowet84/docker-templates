@@ -6,7 +6,8 @@ export type SimpleService = {
     dataPath?: string,
     environment?: string[],
     command?: string[],
-    vpn: boolean
+    vpn: boolean,
+    ports: string[]
 }
 
 export type PortService = { name?: string; port: number, insecure?: boolean }

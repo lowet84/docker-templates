@@ -15,12 +15,12 @@ if (secrets)
     )
   })
 const config = JSON.parse(configString)
-
+const apps = Object.keys(config.apps).map(key=>({...config.apps[key], name: key}))
 let compose = generate(
   config.domain,
   config.volumes,
   config.data,
-  Object.values(config.apps),
+  apps,
   config.ssl,
   config.forwardAuth,
   config.vpn

@@ -8,32 +8,27 @@
   "apps": {
     "sonarr": {
       "image": "ghcr.io/linuxserver/sonarr",
-      "name": "sonarr",
       "configPath": "/config",
       "dataPath": "/data",
       "services": 8989
     },
     "radarr": {
       "image": "ghcr.io/linuxserver/radarr",
-      "name": "radarr",
       "configPath": "/config",
       "dataPath": "/data",
       "services": 7878
     },
     "rethinkdb": {
-      "name": "rethinkdb",
       "configPath": "/data",
       "services": 8080
     },
     "keycloak": {
-      "name": "keycloak",
       "image": "jboss/keycloak",
       "configPath": "/opt/jboss/keycloak/standalone/data/",
       "services": [{ "port": 8080, "insecure": true }],
       "environment": ["PROXY_ADDRESS_FORWARDING=true"]
     },
     "nexus": {
-      "name": "nexus",
       "image": "sonatype/nexus3",
       "configPath": "/nexus-data",
       "services": [
@@ -49,7 +44,6 @@
       ]
     },
     "forward-auth": {
-      "name": "forward-auth",
       "image": "docker.fredriklowenhamn.se/traefik-forward-auth",
       "services": 4181,
       "environment": [
@@ -61,14 +55,12 @@
       ]
     },
     "wol": {
-      "name": "wol",
       "image": "dabondi/go-rest-wol",
       "services": 8080,
       "configPath": "/app/config",
       "environment": ["WOLFILE=./config/computer.csv"]
     },
     "youtransfer": {
-      "name": "youtransfer",
       "image": "remie/youtransfer",
       "services": 5000,
       "configPath": {
@@ -77,7 +69,6 @@
       }
     },
     "transmission": {
-      "name": "transmission",
       "image": "ghcr.io/linuxserver/transmission",
       "services": [
         {
@@ -92,6 +83,12 @@
         "USER=#USERNAME#",
         "PASS=#PASSWORD#"
       ]
+    },
+    "plex": {
+      "image": "ghcr.io/linuxserver/plex",
+      "ports": ["32400:32400"],
+      "configPath": "/config",
+      "dataPath": "/data"
     }
   }
 }
