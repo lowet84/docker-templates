@@ -41,7 +41,6 @@ if (secrets && specialString){
     config.volumes
   )
 }
-// console.log(specialString)
 if (specialString) {
   const special = YAML.parse(specialString)
   compose.services = { ...compose.services, ...special.services }

@@ -29,15 +29,15 @@ const getSimpleService = (
 
   if (service.dataPath)
     volumes.push(`${dataLocation}:${service.dataPath || '/mnt'}`)
-  const services =
-    !service.services ? [] :
-    typeof service.services == 'number'
-      ? [{ name: '', port: service.services }]
-      : (<PortService[]>service.services).map((s, index) => ({
-          name: s.name || `${index == 0 ? '' : `${service.name}${index}`}`,
-          port: s.port,
-          insecure: s.insecure || false,
-        }))
+  const services = !service.services
+    ? []
+    : typeof service.services == 'number'
+    ? [{ name: '', port: service.services }]
+    : (<PortService[]>service.services).map((s, index) => ({
+        name: s.name || `${index == 0 ? '' : `${service.name}${index}`}`,
+        port: s.port,
+        insecure: s.insecure || false,
+      }))
   let ret: ComposeService = {
     image: service.image || service.name,
     container_name: service.name,
@@ -48,11 +48,11 @@ const getSimpleService = (
     command: service.command || [],
     network_mode: service.vpn ? 'service:wireguard' : undefined,
   }
-  if(service.ports) ret.ports = service.ports
-  if (service.image?.includes("ghcr.io/linuxserver"))
+  if (service.ports) ret.ports = service.ports
+  if (service.image?.includes('ghcr.io/linuxserver'))
     ret.environment.push(...['PUID=1000', 'PGID=1000', 'TZ=Europe/Stockholm'])
   if (!service.vpn) delete ret.network_mode
-
+  if (service.net) ret.network_mode = service.net
   return ret
 }
 

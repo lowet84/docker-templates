@@ -7,7 +7,8 @@ export type SimpleService = {
     environment?: string[],
     command?: string[],
     vpn: boolean,
-    ports: string[]
+    ports: string[],
+    net: string
 }
 
 export type PortService = { name?: string; port: number, insecure?: boolean }

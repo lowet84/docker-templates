@@ -86,7 +86,7 @@
     },
     "plex": {
       "image": "ghcr.io/linuxserver/plex",
-      "ports": ["32400:32400"],
+      "net": "host",
       "configPath": "/config",
       "dataPath": "/data"
     }
