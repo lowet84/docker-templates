@@ -89,6 +89,11 @@
       "net": "host",
       "configPath": "/config",
       "dataPath": "/data"
+    },
+    "guacamole": {
+      "image": "oznu/guacamole",
+      "configPath": "/config",
+      "services": 8080
     }
   }
 }
