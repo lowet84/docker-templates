@@ -5,6 +5,7 @@ export const getLabels = (
     ssl: boolean,
     forwardAuth: string
   ) => {
+    if(!services || services.length === 0) return []
     const ret = ['traefik.enable=true']
     services.forEach((service) => {
       ret.push(

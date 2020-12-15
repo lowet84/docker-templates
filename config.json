@@ -94,6 +94,35 @@
       "image": "oznu/guacamole",
       "configPath": "/config",
       "services": 8080
+    },
+    "kong-db": {
+      "image": "cassandra:3",
+      "configPath": "/var/lib/cassandra"
+    },
+    "kong": {
+      "image": "kong:alpine",
+      "environment": [
+        "KONG_DATABASE=cassandra",
+        "KONG_CASSANDRA_CONTACT_POINTS=kong-db",
+        "KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl"
+      ],
+      "services": [{ "port": 8000, "insecure": true }]
+    },
+    "konga": {
+      "image": "pantsel/konga",
+      "services": [{ "port": 1337, "insecure": true }],
+      "configPath": "/app/kongadata",
+      "environment":[
+        "TOKEN_SECRET=sdlkifujhu4k3uh5i3u4hb5ku34hb5k345"
+      ]
+    },
+    "demo": {
+      "image": "nginxdemos/hello"
+    },
+    "bbk": {
+      "image": "bbk",
+      "configPath": "/app/log",
+      "services": 5700
     }
   }
 }
