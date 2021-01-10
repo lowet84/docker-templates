@@ -1,10 +1,10 @@
 import { ComposeFile, ComposeService } from 'ComposeFile'
+import { App, PortService } from 'Config'
 import { getDefaultServices } from './default/default'
 import { getLabels } from './lables'
-import { PortService, SimpleService } from 'Service'
 
 const getSimpleService = (
-  service: SimpleService,
+  service: App,
   volumesLocation: string,
   dataLocation: string,
   domain: string,
@@ -60,7 +60,7 @@ export const generate = (
   domain: string,
   volumesLocation: string,
   dataLocation: string,
-  simpleServices: SimpleService[],
+  simpleServices: App[],
   ssl: boolean,
   forwardAuth: string,
   vpn: boolean

@@ -1,4 +1,14 @@
-export type SimpleService = {
+export interface Config {
+  domain: string
+  volumes: string
+  data: string
+  ssl: boolean
+  forwardAuth: string
+  vpn: boolean
+  apps: {[index: string]: App}
+}
+
+export type App = {
     name: string,
     services: PortService[] | number
     configPath: string | {[index:string]: string}
