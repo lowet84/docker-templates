@@ -4,3 +4,4 @@ dist
 .idea
 secrets.json
 docker-compose.yaml
+config.json
