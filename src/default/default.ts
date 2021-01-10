@@ -15,6 +15,7 @@ export const getDefaultServices = (
     const traefik = getTraefik(volumesLocation, ssl,forwardAuth,domain)
     const portainer = getPortainer(volumesLocation, ssl,forwardAuth,domain)
     const wireguard = vpn ? getWireguard(volumesLocation, ssl,forwardAuth,domain) : undefined
-
-    return { traefik, portainer, wireguard }
+    const ret = { traefik, portainer, wireguard }
+    if(!vpn) delete ret.wireguard
+    return ret
   }
